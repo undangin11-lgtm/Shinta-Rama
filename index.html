@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Undangan Pernikahan</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:#000;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-family:Georgia,serif;
+}
+
+/* FRAME FIX 9:16 */
+.frame{
+  position:relative;
+  width:100%;
+  max-width:420px;
+  aspect-ratio:9/16;
+  background:black;
+  overflow:hidden;
+}
+
+/* VIDEO */
+video{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:black;
+}
+
+/* COVER */
+.cover{
+  position:absolute;
+  inset:0;
+  background:url('cover.jpg') center/cover no-repeat;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  padding-bottom:100px;
+  z-index:5;
+  transition:opacity 1.4s ease;
+}
+
+.cover.hide{
+  opacity:0;
+  pointer-events:none;
+}
+
+/* TEXT TANPA BACKGROUND */
+.text-area{
+  text-align:center;
+  color:#fff;
+  text-shadow:0 3px 12px rgba(0,0,0,.8);
+  animation:fadeUp 1.4s ease;
+}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(25px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.label{
+  font-size:13px;
+  letter-spacing:1px;
+  margin-bottom:6px;
+}
+
+.guest{
+  font-size:22px;
+  font-weight:600;
+  margin-bottom:22px;
+}
+
+.btn-open{
+  background:linear-gradient(135deg,#e6c76e,#c9a437);
+  color:#2b2108;
+  border:none;
+  padding:14px 38px;
+  border-radius:30px;
+  font-size:15px;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(0,0,0,.35);
+}
+
+/* PLAY / PAUSE BUTTON */
+.play-btn{
+  position:absolute;
+  bottom:30px;
+  right:20px;
+  width:52px;
+  height:52px;
+  border-radius:50%;
+  background:rgba(0,0,0,.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-size:20px;
+  cursor:pointer;
+  z-index:4;
+  backdrop-filter:blur(4px);
+}
+</style>
+</head>
+
+<body>
+
+<div class="frame">
+
+  <!-- COVER -->
+  <div class="cover" id="cover">
+    <div class="text-area">
+      <div class="label">KEPADA YTH</div>
+      <div class="guest" id="guest">Tamu Undangan</div>
+      <button class="btn-open" onclick="openInvite()">Buka Undangan</button>
+    </div>
+  </div>
+
+  <!-- VIDEO -->
+  <video id="video" muted playsinline preload="auto">
+    <source src="video.mp4" type="video/mp4">
+  </video>
+
+  <!-- CUSTOM PLAY / PAUSE -->
+  <div class="play-btn" id="playBtn" onclick="togglePlay()">⏸</div>
+
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const guest = params.get('to');
+if(guest){
+  document.getElementById('guest').innerText =
+    decodeURIComponent(guest.replace(/\+/g,' '));
+}
+
+const video = document.getElementById('video');
+const cover = document.getElementById('cover');
+const playBtn = document.getElementById('playBtn');
+
+function openInvite(){
+  cover.classList.add('hide');
+  video.muted = false;
+  video.play();
+  setTimeout(()=>cover.style.display='none',1400);
+}
+
+function togglePlay(){
+  if(video.paused){
+    video.play();
+    playBtn.innerHTML = "⏸";
+  }else{
+    video.pause();
+    playBtn.innerHTML = "▶";
+  }
+}
+</script>
+
+</body>
+</html>
