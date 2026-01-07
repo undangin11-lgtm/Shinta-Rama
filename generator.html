@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Generator Kirim Undangan WA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+  padding: 25px 15px;
+}
+.container {
+  max-width: 540px;
+  margin: auto;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.1);
+}
+h2 {
+  text-align: center;
+}
+label {
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 15px;
+  display: block;
+}
+textarea, select, input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 18px;
+  background: #25D366;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-size: 16px;
+}
+.result {
+  margin-top: 25px;
+}
+.card {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+a.wa {
+  display: inline-block;
+  margin-top: 8px;
+  background: #25D366;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Generator Kirim Undangan WA</h2>
+
+  <label>Link Undangan</label>
+  <input id="linkUndangan" placeholder="https://domainmu.vercel.app">
+
+  <label>Daftar Nama Tamu (1 baris = 1 tamu)</label>
+  <textarea id="namaList" rows="4" placeholder="Budi Santoso
+Ibu Siti & Keluarga
+Andi Wijaya"></textarea>
+
+  <label>Pilih Kata Pengantar</label>
+  <select id="jenisPesan" onchange="ubahTemplate()">
+    <option value="umum">Umum / Netral</option>
+    <option value="islam">Islam</option>
+    <option value="kristen">Kristen</option>
+  </select>
+
+  <label>Template Pesan</label>
+  <textarea id="template" rows="9"></textarea>
+
+  <button onclick="generate()">Buat & Kirim WA</button>
+
+  <div class="result" id="hasil"></div>
+</div>
+
+<script>
+const templates = {
+  umum: `Yth. {{nama}},
+
+Dengan hormat,
+kami mengundang Bapak/Ibu/Saudara/i
+untuk menghadiri acara pernikahan kami.
+
+Informasi lengkap dapat dilihat melalui link berikut:
+{{link}}
+
+Atas perhatian dan kehadirannya,
+kami ucapkan terima kasih.`,
+
+  islam: `Assalamu’alaikum Wr. Wb.
+
+Yth. {{nama}},
+Dengan memohon rahmat dan ridho Allah SWT,
+kami mengundang Bapak/Ibu/Saudara/i
+untuk menghadiri acara pernikahan kami.
+
+Silakan buka undangan berikut:
+{{link}}
+
+Wassalamu’alaikum Wr. Wb.`,
+
+  kristen: `Shalom,
+
+Yth. {{nama}},
+Dengan penuh sukacita dan ucapan syukur kepada Tuhan,
+kami mengundang Bapak/Ibu/Saudara/i
+untuk menghadiri acara pernikahan kami.
+
+Silakan membuka undangan melalui tautan berikut:
+{{link}}
+
+Tuhan memberkati.`
+};
+
+// default template
+document.getElementById("template").value = templates.umum;
+
+function ubahTemplate() {
+  const jenis = document.getElementById("jenisPesan").value;
+  document.getElementById("template").value = templates[jenis];
+}
+
+function generate() {
+  const baseLink = document.getElementById("linkUndangan").value.trim();
+  const names = document.getElementById("namaList").value.split("\n");
+  const template = document.getElementById("template").value;
+
+  if (!baseLink) {
+    alert("Isi link undangan terlebih dahulu");
+    return;
+  }
+
+  let output = "";
+
+  names.forEach(nama => {
+    nama = nama.trim();
+    if (!nama) return;
+
+    const undanganLink =
+      baseLink +
+      "?to=" + encodeURIComponent(nama);
+
+    const pesan = template
+      .replace("{{nama}}", nama)
+      .replace("{{link}}", undanganLink);
+
+    const waLink =
+      "https://wa.me/?text=" + encodeURIComponent(pesan);
+
+    output += `
+<div class="card">
+<b>${nama}</b><br><br>
+<a class="wa" href="${waLink}" target="_blank">
+📲 Kirim WhatsApp
+</a>
+</div>
+`;
+  });
+
+  document.getElementById("hasil").innerHTML = output;
+}
+</script>
+
+</body>
+</html>
