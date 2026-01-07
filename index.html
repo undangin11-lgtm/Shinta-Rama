@@ -3,163 +3,171 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Undangan Pernikahan</title>
+<title>Undangan Digital</title>
 
 <style>
-*{box-sizing:border-box}
+*{margin:0;padding:0;box-sizing:border-box}
 
 body{
-  margin:0;
+  font-family: "Georgia", serif;
   background:#000;
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-family:Georgia,serif;
-}
-
-/* FRAME FIX 9:16 */
-.frame{
-  position:relative;
-  width:100%;
-  max-width:420px;
-  aspect-ratio:9/16;
-  background:black;
+  color:#fff;
   overflow:hidden;
 }
 
-/* VIDEO */
-video{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  background:black;
-}
-
-/* COVER */
+/* ================= COVER ================= */
 .cover{
-  position:absolute;
+  position:fixed;
   inset:0;
   background:url('cover.jpg') center/cover no-repeat;
-  display:flex;
-  align-items:flex-end;
-  justify-content:center;
-  padding-bottom:100px;
-  z-index:5;
-  transition:opacity 1.4s ease;
+  z-index:10;
+  animation:fadeIn 1.2s ease;
 }
 
-.cover.hide{
-  opacity:0;
-  pointer-events:none;
+.cover::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.25);
 }
 
-/* TEXT TANPA BACKGROUND */
-.text-area{
+.cover-content{
+  position:absolute;
+  top:30%;              /* 🔥 DITINGGIKAN */
+  left:50%;
+  transform:translateX(-50%);
   text-align:center;
-  color:#fff;
-  text-shadow:0 3px 12px rgba(0,0,0,.8);
-  animation:fadeUp 1.4s ease;
+  z-index:2;
 }
 
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(25px)}
-  to{opacity:1;transform:translateY(0)}
-}
-
-.label{
-  font-size:13px;
+.cover h1{
+  font-size:20px;
+  font-weight:400;
+  margin-bottom:12px;
   letter-spacing:1px;
-  margin-bottom:6px;
 }
 
 .guest{
   font-size:22px;
   font-weight:600;
-  margin-bottom:22px;
+  margin-bottom:34px;
+  padding:6px 20px;
+  border-top:1px solid #e0c27a;
+  border-bottom:1px solid #e0c27a;
+  color:#e0c27a;
 }
 
-.btn-open{
-  background:linear-gradient(135deg,#e6c76e,#c9a437);
-  color:#2b2108;
-  border:none;
+/* BUTTON */
+.open-btn{
   padding:14px 38px;
-  border-radius:30px;
+  border-radius:40px;
+  border:1px solid #fff;
+  background:transparent;
+  color:#fff;
   font-size:15px;
   cursor:pointer;
-  box-shadow:0 6px 18px rgba(0,0,0,.35);
 }
 
-/* PLAY / PAUSE BUTTON */
-.play-btn{
-  position:absolute;
-  bottom:30px;
+/* ================= VIDEO ================= */
+.video-wrap{
+  position:fixed;
+  inset:0;
+  background:black;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 1s ease;
+}
+
+.video-wrap.active{
+  opacity:1;
+  pointer-events:auto;
+}
+
+video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* ================= CONTROL ================= */
+.control{
+  position:fixed;
+  bottom:20px;
   right:20px;
-  width:52px;
-  height:52px;
-  border-radius:50%;
+  z-index:6;
+}
+
+.control button{
   background:rgba(0,0,0,.6);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:white;
-  font-size:20px;
-  cursor:pointer;
-  z-index:4;
-  backdrop-filter:blur(4px);
+  border:1px solid #fff;
+  color:#fff;
+  padding:12px 14px;
+  border-radius:50%;
+  font-size:16px;
+}
+
+/* ================= ANIM ================= */
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
 }
 </style>
 </head>
 
 <body>
 
-<div class="frame">
-
-  <!-- COVER -->
-  <div class="cover" id="cover">
-    <div class="text-area">
-      <div class="label">KEPADA YTH</div>
-      <div class="guest" id="guest">Tamu Undangan</div>
-      <button class="btn-open" onclick="openInvite()">Buka Undangan</button>
-    </div>
+<!-- COVER -->
+<div class="cover" id="cover">
+  <div class="cover-content">
+    <h1>Kepada Yth</h1>
+    <div class="guest" id="guestName">Tamu Undangan</div>
+    <button class="open-btn" onclick="openInvite()">Buka Undangan</button>
   </div>
+</div>
 
-  <!-- VIDEO -->
-  <video id="video" muted playsinline preload="auto">
+<!-- VIDEO -->
+<div class="video-wrap" id="videoWrap">
+  <video id="video" playsinline muted loop>
     <source src="video.mp4" type="video/mp4">
   </video>
+</div>
 
-  <!-- CUSTOM PLAY / PAUSE -->
-  <div class="play-btn" id="playBtn" onclick="togglePlay()">⏸</div>
-
+<!-- CONTROL -->
+<div class="control">
+  <button id="playBtn" onclick="toggleVideo()">⏸</button>
 </div>
 
 <script>
+// ===== AMBIL NAMA TAMU =====
 const params = new URLSearchParams(window.location.search);
 const guest = params.get('to');
-if(guest){
-  document.getElementById('guest').innerText =
-    decodeURIComponent(guest.replace(/\+/g,' '));
-}
+document.getElementById("guestName").innerText =
+  guest ? decodeURIComponent(guest.replace(/\+/g," ")) : "Tamu Undangan";
 
-const video = document.getElementById('video');
-const cover = document.getElementById('cover');
-const playBtn = document.getElementById('playBtn');
-
+// ===== BUKA UNDANGAN =====
 function openInvite(){
-  cover.classList.add('hide');
-  video.muted = false;
+  document.getElementById("cover").style.display="none";
+
+  const wrap = document.getElementById("videoWrap");
+  const video = document.getElementById("video");
+  const btn = document.getElementById("playBtn");
+
+  wrap.classList.add("active");
   video.play();
-  setTimeout(()=>cover.style.display='none',1400);
+  btn.innerText = "⏸";
 }
 
-function togglePlay(){
-  if(video.paused){
-    video.play();
-    playBtn.innerHTML = "⏸";
+// ===== PLAY / PAUSE =====
+function toggleVideo(){
+  const v = document.getElementById("video");
+  const btn = document.getElementById("playBtn");
+
+  if(v.paused){
+    v.play();
+    btn.innerText = "⏸";
   }else{
-    video.pause();
-    playBtn.innerHTML = "▶";
+    v.pause();
+    btn.innerText = "▶";
   }
 }
 </script>
